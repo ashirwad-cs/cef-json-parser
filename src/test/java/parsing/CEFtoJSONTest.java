@@ -1,10 +1,9 @@
 package parsing;
 
-import com.google.gson.Gson;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import parsing.bean.CEFheaders;
+import parsing.bean.CEFevent;
 
 import static org.junit.Assert.*;
 
@@ -23,11 +22,19 @@ public class CEFtoJSONTest {
     public void tearDown() throws Exception {
 
     }
+    @Test
+    public void testCEFtoJSON() throws Exception{
+
+        instance.CEFtoJSON("Sep 19 08:26:10 host CEF:2|Security|threatmanager|1.0|100|worm successfully stopped|10|src=10.0.0.1 dst=2.1.2.2 spt=1232");
+
+    }
+
+
 
     @Test
-    public void testGetCEFHeaders() throws Exception {
+    public void testparseHeadersAndBody() throws Exception {
 
-        CEFheaders cefHeaders = instance.getCEFHeaders("Sep 19 08:26:10 host CEF:2|Security|threatmanager|1.0|100|worm successfully stopped|10|src=10.0.0.1 dst=2.1.2.2 spt=1232");
+        CEFevent cefHeaders = instance.parseHeadersAndBody("Sep 19 08:26:10 host CEF:2|Security|threatmanager|1.0|100|worm successfully stopped|10|src=10.0.0.1 dst=2.1.2.2 spt=1232");
         assertNotNull(cefHeaders.getCEFversion());
         System.out.println("CEF Version: " + cefHeaders.getCEFversion());
 

@@ -1,14 +1,15 @@
 package parsing;
 
-import com.google.gson.Gson;
-import parsing.bean.CEFheaders;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import com.google.gson.Gson;
+import parsing.bean.CEFevent;
+
+import java.io.IOException;
 
 /**
  * Created by Gaurav Kumar <gk@tail-f.guru> on 8/16/2014.
  */
-@NotThreadSafe
+
 public class CEFtoJSON {
 
     private Gson gson;
@@ -35,7 +36,10 @@ public class CEFtoJSON {
      * @param CEFstring valid CEF String which is to be converted to JSON
      * @return JSON converted from input string CEFstring
      */
-    public String CEFtoJSON(String CEFstring) {
+    public String CEFtoJSON(String CEFstring) throws IOException {
+
+        CEFevent ceFevent = parseHeadersAndBody(CEFstring);
+        String eventBody = ceFevent.getEventBody();
 
 
         return "{}";
@@ -46,7 +50,7 @@ public class CEFtoJSON {
      * @param CEFstring valid CEF String which is to be converted to JSON
      * @return JSON string representing CEF headers
      */
-    public CEFheaders getCEFHeaders(String CEFstring) {
+    public CEFevent parseHeadersAndBody(String CEFstring) {
 
         //TODO: validate if input is a valid CEF string and throw appropriate exception
         //TODO: escape \ in headers
@@ -57,49 +61,52 @@ public class CEFtoJSON {
 
         }
 
-        CEFheaders ceFheaders = new CEFheaders();
+        CEFevent ceFevent = new CEFevent();
 
         //extract CEF Version
         int firstPipePosition = CEFstring.indexOf("|");
         String CEFVersionTag = CEFstring.substring(CEFstring.indexOf("CEF"), firstPipePosition);
         String[] versionSplit = CEFVersionTag.split(":");
-        ceFheaders.setCEFversion(versionSplit[1]);
+        ceFevent.setCEFversion(versionSplit[1]);
 
 
         //extract vendor
         int secondPipePosition = CEFstring.indexOf("|", firstPipePosition + 1);
         String vendor = CEFstring.substring(firstPipePosition + 1, secondPipePosition);
-        ceFheaders.setDeviceVendor(vendor);
+        ceFevent.setDeviceVendor(vendor);
 
 
         //extract product
         int thirdPipePosition = CEFstring.indexOf("|", secondPipePosition + 1);
         String deviceProduct = CEFstring.substring(secondPipePosition + 1, thirdPipePosition);
-        ceFheaders.setDeviceProduct(deviceProduct);
+        ceFevent.setDeviceProduct(deviceProduct);
 
         //extract version
         int fourthPipePosition = CEFstring.indexOf("|", thirdPipePosition + 1);
         String deviceVersion = CEFstring.substring(thirdPipePosition + 1, fourthPipePosition);
-        ceFheaders.setDeviceVersion(deviceVersion);
+        ceFevent.setDeviceVersion(deviceVersion);
 
 
         //extract signature ID
         int fifthPipePosition = CEFstring.indexOf("|", fourthPipePosition + 1);
         String sigID = CEFstring.substring(fourthPipePosition + 1, fifthPipePosition);
-        ceFheaders.setSignatureID(sigID);
+        ceFevent.setSignatureID(sigID);
 
         //extract eventName
         int sixthPipePoistion = CEFstring.indexOf("|", fifthPipePosition + 1);
         String eventName = CEFstring.substring(fifthPipePosition + 1, sixthPipePoistion);
-        ceFheaders.setEventName(eventName);
+        ceFevent.setEventName(eventName);
 
         //extract severity
 
         int seventhPipePostion = CEFstring.indexOf("|", sixthPipePoistion + 1);
         String severity = CEFstring.substring(sixthPipePoistion + 1, seventhPipePostion);
-        ceFheaders.setSeverity(severity);
+        ceFevent.setSeverity(severity);
 
-        return ceFheaders;
+        //extract body
+        ceFevent.setEventBody(CEFstring.substring(seventhPipePostion + 1));
+
+        return ceFevent;
 
     }
 

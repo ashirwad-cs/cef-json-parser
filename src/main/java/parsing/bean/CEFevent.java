@@ -3,10 +3,11 @@ package parsing.bean;
 import java.time.LocalDateTime;
 
 /**
- *  Created by Gaurav Kumar <gk@tail-f.guru> on 8/16/2014.
+ * Created by Gaurav Kumar <gk@tail-f.guru> on 8/16/2014.
  */
-public class CEFheaders {
+public class CEFevent {
 
+    LocalDateTime localDateTime;
     String CEFversion;
     String DeviceVendor;
     String DeviceProduct;
@@ -15,12 +16,17 @@ public class CEFheaders {
     String EventName;
     String Severity;
     String SyslogHost;
-    LocalDateTime localDateTime;
+    String eventBody;
+
+
+
+
 
     @Override
     public String toString() {
-        return "CEFheadersBean{" +
-                "CEFversion='" + CEFversion + '\'' +
+        return "CEFevent{" +
+                "localDateTime=" + localDateTime +
+                ", CEFversion='" + CEFversion + '\'' +
                 ", DeviceVendor='" + DeviceVendor + '\'' +
                 ", DeviceProduct='" + DeviceProduct + '\'' +
                 ", DeviceVersion='" + DeviceVersion + '\'' +
@@ -28,8 +34,16 @@ public class CEFheaders {
                 ", EventName='" + EventName + '\'' +
                 ", Severity='" + Severity + '\'' +
                 ", SyslogHost='" + SyslogHost + '\'' +
-                ", localDateTime=" + localDateTime +
+                ", eventBody='" + eventBody + '\'' +
                 '}';
+    }
+
+    public String getEventBody() {
+        return eventBody;
+    }
+
+    public void setEventBody(String eventBody) {
+        this.eventBody = eventBody;
     }
 
     public LocalDateTime getLocalDateTime() {
