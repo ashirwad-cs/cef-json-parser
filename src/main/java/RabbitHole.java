@@ -4,6 +4,11 @@ import org.apache.flume.sink.AbstractSink;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import parsing.CEFtoJSON;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.UUID;
 
 /**
  * Created by Gaurav Kumar <gauravphoenix@gmail.com> on 7/20/2014.
@@ -11,6 +16,7 @@ import org.slf4j.LoggerFactory;
 public class RabbitHole extends AbstractSink implements Configurable {
     public static CounterGroup eventCounter;
     private final Logger logger = LoggerFactory.getLogger(RabbitHole.class);
+    private String outputDirPath;
 
     public RabbitHole() {
         eventCounter = new CounterGroup();
@@ -34,8 +40,8 @@ public class RabbitHole extends AbstractSink implements Configurable {
 
     @Override
     public void configure(Context context) {
-        logger.info("Starting configuration");
-
+        logger.info("Output (JSON from CEF) will be stored in directory " + context.getString("outputDir"));
+        outputDirPath = context.getString("outputDir");
     }
 
     @Override
@@ -53,6 +59,15 @@ public class RabbitHole extends AbstractSink implements Configurable {
 
                 String eventStr = new String(event.getBody());
                 logger.debug("Consumed the event: " + eventStr);
+                String jsonFromCEFevent = CEFtoJSON.getInstance().getJSONstringFromCEFstring(eventStr);
+                logger.debug("JSON from CEF Event: " + jsonFromCEFevent);
+
+                //write jsont to file
+                File f = new File(outputDirPath + File.separator + UUID.randomUUID());
+                PrintWriter printWriter = new PrintWriter(f);
+                printWriter.print(jsonFromCEFevent);
+                printWriter.close();
+
                 eventCounter.incrementAndGet("events.successful");
                 return Status.READY;
             } else {

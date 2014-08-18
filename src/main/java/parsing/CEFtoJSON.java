@@ -2,9 +2,11 @@ package parsing;
 
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import parsing.bean.CEFevent;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Created by Gaurav Kumar <gk@tail-f.guru> on 8/16/2014.
@@ -29,21 +31,66 @@ public class CEFtoJSON {
 
 
     public CEFtoJSON() {
-        this.gson = new Gson();
+        this.gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     }
 
     /**
      * @param CEFstring valid CEF String which is to be converted to JSON
      * @return JSON converted from input string CEFstring
      */
-    public String CEFtoJSON(String CEFstring) throws IOException {
+    public String getJSONstringFromCEFstring(String CEFstring) throws IOException {
 
         CEFevent ceFevent = parseHeadersAndBody(CEFstring);
         String eventBody = ceFevent.getEventBody();
+        HashMap<String, String> cefExtensions = new HashMap<>(200);
 
+        for (; ; ) {
+            if (indexOfNextUnescapedEqualSign(eventBody) == -1) {
+                break;
+            }
 
-        return "{}";
+            int indexOfNextEqualSign = indexOfNextUnescapedEqualSign(eventBody);
+            String key = eventBody.substring(0, indexOfNextEqualSign);
+
+            String eventBodyNew = eventBody.substring(indexOfNextEqualSign + 1);
+            int tmpIndex = indexOfNextUnescapedEqualSign(eventBodyNew);
+
+            if (tmpIndex == -1) { //this is the last equal sign
+                cefExtensions.put(key, eventBodyNew);
+                break;
+            }
+
+            int nextToNextEqualSign = tmpIndex + key.length() + 1;
+            String subString = eventBody.substring(indexOfNextEqualSign + 1, nextToNextEqualSign);
+            String value = subString.substring(0, subString.lastIndexOf(' '));
+            key = key.replaceAll("\\s+", "");//remove whitespaces if any from key
+            cefExtensions.put(key, value);
+
+            eventBody = eventBodyNew.substring(value.length());
+        }
+        ceFevent.setExtensions(cefExtensions);
+        return gson.toJson(ceFevent);
     }
+
+    private int indexOfNextUnescapedEqualSign(String CEFString) {
+
+        for (int i = 0; i < CEFString.length(); i++) {
+            if (CEFString.charAt(i) == '=') {
+                if (i > 0) {
+                    if (CEFString.charAt(i - 1) == '\\') {
+                        continue;
+                    }
+                }
+
+                return i;
+            }
+
+        }
+
+
+        return -1;
+
+    }//end of method
 
 
     /**

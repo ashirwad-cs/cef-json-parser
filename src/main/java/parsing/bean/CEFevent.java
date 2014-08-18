@@ -1,25 +1,50 @@
 package parsing.bean;
 
+import com.google.gson.annotations.Expose;
+
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
 /**
  * Created by Gaurav Kumar <gk@tail-f.guru> on 8/16/2014.
  */
 public class CEFevent {
 
+    @Expose
     LocalDateTime localDateTime;
+
+    @Expose
     String CEFversion;
+
+    @Expose
     String DeviceVendor;
+
+
+    @Expose
     String DeviceProduct;
+
+    @Expose
     String DeviceVersion;
+
+    @Expose
     String SignatureID;
+
+
+    @Expose
     String EventName;
+
+
+    @Expose
     String Severity;
+
+    @Expose
     String SyslogHost;
+
+    @Expose
+    HashMap<String, String> extensions;
+
+
     String eventBody;
-
-
-
 
 
     @Override
@@ -35,7 +60,16 @@ public class CEFevent {
                 ", Severity='" + Severity + '\'' +
                 ", SyslogHost='" + SyslogHost + '\'' +
                 ", eventBody='" + eventBody + '\'' +
+                ", extensions=" + extensions +
                 '}';
+    }
+
+    public HashMap<String, String> getExtensions() {
+        return extensions;
+    }
+
+    public void setExtensions(HashMap<String, String> extensions) {
+        this.extensions = extensions;
     }
 
     public String getEventBody() {
